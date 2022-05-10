@@ -26,20 +26,20 @@ class Crypter(QObject):
             key = bytes.fromhex(key)
             cipher = DES3.new(key, DES3.MODE_EAX)
             self.nonce = cipher.nonce
-            msg_crypt = cipher.encrypt(msg.encode('ascii'))
+            msg_crypt = cipher.encrypt(msg.encode())
             return str(msg_crypt.hex())
         except:
-            return 'Error'
+            return ''
 
     @pyqtSlot(str, str, result=str)
     def decrypt(self, msg, key):
         try:
             cipher = DES3.new(bytes.fromhex(key), DES3.MODE_EAX, nonce=self.nonce)
             msg = cipher.decrypt(bytes.fromhex(msg))
-            res = msg.decode('ascii')
+            res = msg.decode()
             return res
         except:
-            return 'Error'
+            return 'Невозможно расшифровать'
 
 
 if __name__ == "__main__":

@@ -153,9 +153,60 @@ Window {
                     color: alice_e_s.down ? '#ededed' : 'white' }
                 onReleased: {
                     bob_e.text = alice_e.text;
-                    timer_text.text = '10';
+                    time_popup.open();
+                }
+            }
+        }
+
+        Popup {
+            id: time_popup
+            anchors.centerIn: parent
+            height: 220
+            width: 250
+            modal: true
+            enter: Transition {
+                NumberAnimation { property: "opacity"; from: 0.0; to: 1.0 }
+            }
+            exit: Transition {
+                NumberAnimation { property: "opacity"; from: 1.0; to: 0.0 }
+            }
+            Text {
+                id: _t
+                text: 'Время до отправки (сек)'
+                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.top: parent.top
+                anchors.topMargin: 10
+                font.pointSize: 14
+            }
+
+            TextField {
+                id: time_field
+                anchors.top: _t.bottom
+                anchors.topMargin: 25
+                height: 50
+                width: 140
+                font.pointSize: 14
+                horizontalAlignment: TextField.AlignHCenter
+                anchors.horizontalCenter: parent.horizontalCenter
+                validator: RegExpValidator { regExp: /[0-9]+/ }
+            }
+
+            Button {
+                id: time_btn
+                height: 50
+                width: 140
+                text: 'Принять'
+                anchors.top: time_field.bottom
+                anchors.topMargin: 25
+                anchors.horizontalCenter: parent.horizontalCenter
+                font.pointSize: 14
+                background: Rectangle { border.width: 1; radius: 5; border.color: 'grey';
+                    color: time_btn.down ? '#ededed' : 'white' }
+                onReleased: {
+                    timer_text.text = time_field.text;
                     timer_text.visible = true;
                     time_to_send.start();
+                    time_popup.close();
                 }
             }
         }
@@ -284,7 +335,7 @@ Window {
                 NumberAnimation { property: "opacity"; from: 1.0; to: 0.0 }
             }
 
-            Text {
+            Text {                
                 text: 'Результат расшифрования'
                 font.pointSize: 20
                 font.bold: true
@@ -295,6 +346,7 @@ Window {
 
             Text {
                 id: msg
+                color: text === 'Невозможно расшифровать' ? 'red' : 'black'
                 font.pointSize: 14
                 horizontalAlignment: Text.AlignHCenter
                 anchors.left: parent.left
@@ -305,13 +357,21 @@ Window {
             }
 
             Text {
+                visible: msg.text != 'Невозможно расшифровать'
                 anchors.top: msg.bottom
                 anchors.topMargin: 50
                 anchors.horizontalCenter: parent.horizontalCenter
                 font.pointSize: 14
-                color: msg.text.includes(bob_r.text) ? 'green' : 'red'
-                text: msg.text.includes(bob_r.text) ? 'Цепочка соответствует отправленной' : 'Цепочка не соответствует отправленной'
+                color: include(msg.text, bob_r.text) ? 'green' : 'red'
+                text: include(msg.text, bob_r.text) ? 'Цепочка соответствует отправленной' : 'Цепочка не соответствует отправленной'
             }
         }
+    }
+
+    function include(src, check)
+    {
+        var source = String(src);
+        var b = source.endsWith(String(check));
+        return b;
     }
 }
